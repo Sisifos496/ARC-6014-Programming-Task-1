@@ -36,9 +36,11 @@ public class Main {
 
         while (!allConditionsChecked) {
             System.out.println("1 => Madde Ekleme");
-            System.out.println("2 => Madde Kontrolü Yapma");
-            System.out.println("3 => Akü Ekleme ve Seçme");
-            System.out.println("4 => Genel Kontrol \n");
+            System.out.println("2 => Madde Çıkarma");
+            System.out.println("3 => Madde Kontrolü Yapma");
+            System.out.println("4 => Akü Ekleme ve Seçme");
+            System.out.println("5 => Genel Kontrol");
+            System.out.println("6 => Programı Kapat \n");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -48,12 +50,15 @@ public class Main {
                     addItem(scanner);
                     break;
                 case 2:
-                    controlItems(scanner);
+                    removeItem(scanner);
                     break;
                 case 3:
-                    manageBatteries(scanner);
+                    controlItems(scanner);
                     break;
                 case 4:
+                    manageBatteries(scanner);
+                    break;
+                case 5:
                     if (checkReadiness()) {
                         selectBestBattery();
                         System.out.println("Maça Hazır!");
@@ -61,6 +66,9 @@ public class Main {
                     } else {
                         System.out.println("Tüm maddeler kontrol edilmemiş veya uygun akü seçilmemiş.\n");
                     }
+                    break;
+                case 6:
+                    allConditionsChecked = true;
                     break;
                 default:
                     System.out.println("Geçersiz seçim. Lütfen tekrar deneyin.\n");
@@ -74,6 +82,24 @@ public class Main {
         String description = scanner.nextLine();
         todoList.add(new ControlItem(description));
         System.out.println("Madde eklendi.\n");
+    }
+
+    private static void removeItem(Scanner scanner) {
+        for (int i = 0; i < todoList.size(); i++) {
+            ControlItem item = todoList.get(i);
+            System.out.println((i + 1) + "- " + item.itemDescription + " [" + (item.itemStatus ? "Doğru" : "Yanlış") + "]");
+        }
+
+        System.out.print("Çıkarmak istediğiniz madde numarasını giriniz: ");
+        int itemIndex = scanner.nextInt() - 1;
+        scanner.nextLine();
+
+        if (itemIndex >= 0 && itemIndex < todoList.size()) {
+            todoList.remove(itemIndex);
+            System.out.println("Madde Çıkarıldı.\n");
+        } else {
+            System.out.println("Geçersiz madde numarası.\n");
+        }
     }
 
     private static void controlItems(Scanner scanner) {
