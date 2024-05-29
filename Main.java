@@ -2,11 +2,22 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 
-class ControlItem {
+//Defining Classes
+class RobotBattery {
+    String batteryHealthStatus;
+    double batteryVoltage;
+
+    RobotBattery(String batteryHealthStatus, double batteryVoltage) {
+        this.batteryHealthStatus = batteryHealthStatus;
+        this.batteryVoltage = batteryVoltage;
+    }
+}
+
+class ControlItemTask {
     String itemDescription;
     boolean itemStatus;
 
-    ControlItem(String description) {
+    ControlItemTask(String description) {
         this.itemDescription = description;
         this.itemStatus = false;
     }
@@ -16,35 +27,28 @@ class ControlItem {
     }
 }
 
-class Battery {
-    String healthStatus;
-    double voltage;
-
-    Battery(String healthStatus, double voltage) {
-        this.healthStatus = healthStatus;
-        this.voltage = voltage;
-    }
-}
-
 public class Main {
-    private static ArrayList<ControlItem> todoList = new ArrayList<>();
-    private static ArrayList<Battery> batteriesList = new ArrayList<>();
+    //Defining Arrays to Store Class Instances
+    private static ArrayList<RobotBattery> batteriesList = new ArrayList<>();
+    private static ArrayList<ControlItemTask> itemControlList = new ArrayList<>();
 
     public static void main(String[] args) {
         boolean allConditionsChecked = false;
         Scanner scanner = new Scanner(System.in);
 
+        //Main While Loop That Program Repeats For The User To Do The Functions
         while (!allConditionsChecked) {
-            System.out.println("1 => Madde Ekleme");
-            System.out.println("2 => Madde Çıkarma");
-            System.out.println("3 => Madde Kontrolü Yapma");
-            System.out.println("4 => Akü Ekleme ve Seçme");
-            System.out.println("5 => Genel Kontrol");
+            System.out.println("1 => Madde Ekle");
+            System.out.println("2 => Madde Çıkar");
+            System.out.println("3 => Madde Kontrolü Yap");
+            System.out.println("4 => Akü Ekle veya En İyi Aküyü Seç");
+            System.out.println("5 => Genel Kontrol Yap");
             System.out.println("6 => Programı Kapat \n");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
+            //Switch Case Used Here To Do The Correct Action According To The User
             switch (choice) {
                 case 1:
                     addItem(scanner);
@@ -56,7 +60,7 @@ public class Main {
                     controlItems(scanner);
                     break;
                 case 4:
-                    manageBatteries(scanner);
+                    AddingSelectingBatteries(scanner);
                     break;
                 case 5:
                     if (checkReadiness()) {
@@ -77,55 +81,63 @@ public class Main {
         scanner.close();
     }
 
+    //AddItem Functionality
     private static void addItem(Scanner scanner) {
         System.out.print("Eklemek istediğiniz maddeyi giriniz: ");
-        String description = scanner.nextLine();
-        todoList.add(new ControlItem(description));
+
+        String itemDescriptionInput = scanner.nextLine();
+        itemControlList.add(new ControlItemTask(itemDescriptionInput)); //Adding ItemControlList
         System.out.println("Madde eklendi.\n");
     }
 
+    //RemoveItem Functionality
     private static void removeItem(Scanner scanner) {
-        for (int i = 0; i < todoList.size(); i++) {
-            ControlItem item = todoList.get(i);
-            System.out.println((i + 1) + "- " + item.itemDescription + " [" + (item.itemStatus ? "Doğru" : "Yanlış") + "]");
+        for (int i = 0; i < itemControlList.size(); i++) {
+            ControlItemTask itemRemoved = itemControlList.get(i);
+            System.out.println((i + 1) + "- " + itemRemoved.itemDescription + " [" + (itemRemoved.itemStatus ? "Doğru" : "Yanlış") + "]");
         }
 
         System.out.print("Çıkarmak istediğiniz madde numarasını giriniz: ");
+
         int itemIndex = scanner.nextInt() - 1;
         scanner.nextLine();
 
-        if (itemIndex >= 0 && itemIndex < todoList.size()) {
-            todoList.remove(itemIndex);
+        //Checking If The User Input For Index Matches
+        if (itemIndex >= 0 && itemIndex < itemControlList.size()) {
+            itemControlList.remove(itemIndex); //Removing The Item According To The Index Input From The User
             System.out.println("Madde Çıkarıldı.\n");
         } else {
             System.out.println("Geçersiz madde numarası.\n");
         }
     }
 
+    //Changing The Status of Items Functionality
     private static void controlItems(Scanner scanner) {
-        if (todoList.isEmpty()) {
+        if (itemControlList.isEmpty()) {
             System.out.println("Kontrol listesinde madde yok.\n");
             return;
         }
 
-        for (int i = 0; i < todoList.size(); i++) {
-            ControlItem item = todoList.get(i);
-            System.out.println((i + 1) + "- " + item.itemDescription + " [" + (item.itemStatus ? "Doğru" : "Yanlış") + "]");
+        for (int i = 0; i < itemControlList.size(); i++) {
+            ControlItemTask controlListItem = itemControlList.get(i);
+            System.out.println((i + 1) + "- " + controlListItem.itemDescription + " [" + (controlListItem.itemStatus ? "Doğru" : "Yanlış") + "]");
         }
 
         System.out.print("Kontrol etmek istediğiniz madde numarasını giriniz: ");
         int itemIndex = scanner.nextInt() - 1;
         scanner.nextLine();
 
-        if (itemIndex >= 0 && itemIndex < todoList.size()) {
-            todoList.get(itemIndex).ChangeStatus();
-            System.out.println("Madde Doğru olarak işaretlendi.\n");
+        //Checking If The User Input For Index Matches
+        if (itemIndex >= 0 && itemIndex < itemControlList.size()) {
+            itemControlList.get(itemIndex).ChangeStatus(); //Change The Status of The Item
+            System.out.println("Maddenin Statüsü Değiştirildi.\n");
         } else {
             System.out.println("Geçersiz madde numarası.\n");
         }
     }
 
-    private static void manageBatteries(Scanner scanner) {
+    //Adding Batteries and Selecting The Best Battery
+    private static void AddingSelectingBatteries(Scanner scanner) {
         System.out.println("1 => Akü ekleme");
         System.out.println("2 => En uygun aküyü seç\n");
         int choice = scanner.nextInt();
@@ -143,6 +155,7 @@ public class Main {
         }
     }
 
+    //Adding Battery Functionality
     private static void addBattery(Scanner scanner) {
         System.out.print("Akü sağlık durumu (iyi/ortalama): ");
         String healthStatus = scanner.nextLine();
@@ -163,38 +176,41 @@ public class Main {
             return;
         }
 
-        batteriesList.add(new Battery(healthStatus, voltage));
+        batteriesList.add(new RobotBattery(healthStatus, voltage)); //Adding The Battery To The List
         System.out.println("Akü eklendi. \n");
     }
 
+    //Selecting Best Battery Functionality
     private static void selectBestBattery() {
         if (batteriesList.isEmpty()) {
             System.out.println("Kayıtlı akü yok.\n");
             return;
         }
 
-        Battery bestBattery = null;
+        RobotBattery bestRobotBattery = null;
 
-        for (Battery battery : batteriesList) {
-            if (bestBattery == null ||
-                    (battery.voltage > bestBattery.voltage) ||
-                    (battery.voltage == bestBattery.voltage && battery.healthStatus.equals("good") && bestBattery.healthStatus.equals("fair"))) {
-                bestBattery = battery;
+        //Conditions To Select The Best Battery: If the Voltage Is Better Automatically Select The One With Better Voltage Else Choose The One With Better Health Status
+        for (RobotBattery robotBattery : batteriesList) {
+            if (bestRobotBattery == null ||
+                    (robotBattery.batteryVoltage > bestRobotBattery.batteryVoltage) ||
+                    (robotBattery.batteryVoltage == bestRobotBattery.batteryVoltage && robotBattery.batteryHealthStatus.equals("good") && bestRobotBattery.batteryHealthStatus.equals("fair"))) {
+                bestRobotBattery = robotBattery;
             }
         }
 
-        if (bestBattery != null) {
-            System.out.println("Seçilen en iyi akü: " + bestBattery.voltage + "V, Sağlık Durumu: " + bestBattery.healthStatus);
+        if (bestRobotBattery != null) {
+            System.out.println("Seçilen en iyi akü: " + bestRobotBattery.batteryVoltage + "V, Sağlık Durumu: " + bestRobotBattery.batteryHealthStatus);
         }
     }
 
+    //Functionality To Check All The Tasks Are Done and Battery Is Added
     private static boolean checkReadiness() {
         boolean allChecked = true;
 
-        for (ControlItem item : todoList) {
-            if (!item.itemStatus) {
+        for (ControlItemTask controlListItem : itemControlList) {
+            if (!controlListItem.itemStatus) {
                 allChecked = false;
-                System.out.println("Kontrol edilmemiş madde: " + item.itemDescription);
+                System.out.println("Kontrol edilmemiş madde: " + controlListItem.itemDescription);
             }
         }
 
@@ -203,17 +219,17 @@ public class Main {
             return false;
         }
 
-        Battery bestBattery = null;
+        RobotBattery bestRobotBattery = null;
 
-        for (Battery battery : batteriesList) {
-            if (bestBattery == null ||
-                    (battery.voltage > bestBattery.voltage) ||
-                    (battery.voltage == bestBattery.voltage && battery.healthStatus.equals("good") && bestBattery.healthStatus.equals("fair"))) {
-                bestBattery = battery;
+        for (RobotBattery robotBattery : batteriesList) {
+            if (bestRobotBattery == null ||
+                    (robotBattery.batteryVoltage > bestRobotBattery.batteryVoltage) ||
+                    (robotBattery.batteryVoltage == bestRobotBattery.batteryVoltage && robotBattery.batteryHealthStatus.equals("good") && bestRobotBattery.batteryHealthStatus.equals("fair"))) {
+                bestRobotBattery = robotBattery;
             }
         }
 
-        if (bestBattery == null || !allChecked) {
+        if (bestRobotBattery == null || !allChecked) {
             return false;
         }
 
